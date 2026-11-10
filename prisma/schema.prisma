@@ -1,0 +1,29 @@
+// Schema do banco
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Usuario
+model User {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  email     String     @unique
+  senha     String
+  quadrados Quadrado[]
+}
+
+// Quadrado do painel
+model Quadrado {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  descricao String?
+  criadoEm  DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
