@@ -16,7 +16,7 @@ app.use(cookieParser())
 app.use(cors())
 app.use(express.static('public'))
 
-// Validação token do cookie
+// Verifica se o token JWT no cookie é válido antes de liberar acesso às rotas protegidas
 function autenticarToken(req, res, next) {
     const token = req.cookies.token
     if (!token) {
@@ -31,7 +31,7 @@ function autenticarToken(req, res, next) {
     }
 }
 
-// Cadastro
+// Recebe nome, email e senha, salva o usuário no banco com a senha criptografada
 app.post('/registro', async (req, res) => {
     const { nome, email, senha } = req.body
     try {
@@ -51,7 +51,7 @@ app.post('/registro', async (req, res) => {
     }
 })
 
-// Login
+// Confere email e senha, e se estiver tudo certo grava um token JWT num cookie
 app.post('/login', async (req, res) => {
     const { email, senha } = req.body
     try {
@@ -90,13 +90,13 @@ app.post('/login', async (req, res) => {
     }
 })
 
-// Logout
+// Apaga o cookie do token, encerrando a sessão do usuário
 app.post('/logout', (req, res) => {
     res.clearCookie("token")
     return res.status(200).json({ mensagem: "Logout realizado." })
 })
 
-// Lista quadrados
+// Retorna todos os quadrados do usuário logado
 app.get('/quadrado', autenticarToken, async (req, res) => {
     try {
         const quadrados = await prisma.quadrado.findMany({
@@ -108,7 +108,7 @@ app.get('/quadrado', autenticarToken, async (req, res) => {
     }
 })
 
-// Cria quadrado
+// Cria um novo quadrado vinculado ao usuário logado
 app.post('/quadrado', autenticarToken, async (req, res) => {
     const { titulo, descricao } = req.body
     try {
@@ -125,7 +125,7 @@ app.post('/quadrado', autenticarToken, async (req, res) => {
     }
 })
 
-// Atualiza quadrado
+// Atualiza o título e descrição de um quadrado existente pelo ID
 app.put('/quadrado/:id', autenticarToken, async (req, res) => {
     const { id } = req.params
     const { titulo, descricao } = req.body
@@ -140,7 +140,7 @@ app.put('/quadrado/:id', autenticarToken, async (req, res) => {
     }
 })
 
-// Remove quadrado
+// Deleta um quadrado do banco pelo ID
 app.delete('/quadrado/:id', autenticarToken, async (req, res) => {
     const { id } = req.params
     try {
